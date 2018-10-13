@@ -1,6 +1,6 @@
 const socketConfig = window.config.socket;
 const socket = io(
-  `${socketConfig.procotol}${socketConfig.hostname}:${socketConfig.port}`
+  `${socketConfig.protocol}${socketConfig.hostname}:${socketConfig.port}`
 );
 const container = document.querySelector('.container');
 const canvas = document.querySelector('#canvas');
@@ -66,13 +66,17 @@ const captureHandler = () => {
 
 const setListeners = () => {
   socket.on(Events.CAPTURE, captureHandler);
+
+  document.body.addEventListener('click', e => {
+    socket.emit(Events.CAMERA);
+    setVideo();
+  }, {
+    once: true
+  });
 }
 
 const initApp = () => {
-  socket.emit(Events.CAMERA);
-
   setOrientation();
-  setVideo();
   setListeners();
 }
 initApp();

@@ -72,11 +72,9 @@ io.on('connection', (socket) => {
   socket.on(Events.LEAPCONTROLLER.GRAB, () => {
     console.log('Got a grab event.');
 
-    if(SocketManager.getCameraSocket() && GRABBING) {
-      setTimeout(() => {
-        SocketManager.getCameraSocket().emit(Events.CAMERA.CAPTURE, {});
-      }, 3000);
+    if(SocketManager.getCameraSocket() && !GRABBING) {
       helper.openQRTabInAll(SocketManager.getSockets());
+      SocketManager.getCameraSocket().emit(Events.CAMERA.CAPTURE, {});
       GRABBING = true;
     }
   });
