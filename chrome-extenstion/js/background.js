@@ -1,9 +1,9 @@
 const config = {
-	socket: {
-		protocol: 'https://',
-		hostname: 'localhost',
-		port: 8000
-	}
+  socket: {
+    protocol: 'https://',
+    hostname: 'localhost',
+    port: 8000
+  }
 };
 
 const socketConfig = config.socket;
@@ -29,8 +29,10 @@ const setSocketHandlers = () => {
 		} = data;
 
 		chrome.tabs.getSelected(null, tab => {
+			// Save previously active tab.
 			ACTIVE_TAB = tab;
 		
+			// Open a tab for QR code if not already opened.
 			if (!OPENED) {
 				chrome.tabs.create({
 					url,
@@ -39,14 +41,14 @@ const setSocketHandlers = () => {
 					QR_TAB = tab;
 					OPENED = true;
 					
-					chrome.tabs.onRemoved.addListener((id, removeInfo) => {
+					// Set OPENED = false if manually closed.
+					chrome.tabs.onRemoved.addListener(id => {
 						if (id === QR_TAB.id) {
 							OPENED = false;
 						}
 					});;
 				});
 			}
-
 		});		
 	});
 
@@ -56,9 +58,10 @@ const setSocketHandlers = () => {
 		} = QR_TAB;
 		
 		try {
-			chrome.tabs.remove(id, x => {
+			chrome.tabs.remove(id, () => {
 				OPENED = false;
 
+				// ID sometimes becomes negative, which throws an error on chrome.tabs.update.
 				if (ACTIVE_TAB.id > 0) {
 					chrome.tabs.update(ACTIVE_TAB.id, {
 						active: true
@@ -76,7 +79,7 @@ const setSocketHandlers = () => {
 		chrome.tabs.create({
 			url,
 			active: true
-		}, tab => {});
+		}, () => {});
 	});
 
 	socket.on(Events.GET_URL, () => {

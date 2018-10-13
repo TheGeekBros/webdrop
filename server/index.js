@@ -1,10 +1,16 @@
 const fs = require('fs');
 const config = require('./config');
+const SocketManager = require('./socket-manager');
+const helper = require('./helper');
+const Events = require('./events');
+
 const STATIC_FILES = [
   '/js/jquery.min.js',
   '/js/qrcode.min.js',
 ];
 const URL_REGEX = /^\/qr\/[.]*/i;
+
+// Handler for requests.
 const handler = (req, res) => {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -47,20 +53,14 @@ const handler = (req, res) => {
 };
 
 const app = require(config.socket.protocol).createServer(handler);
-const SocketManager = require('./socket-manager');
-const helper = require('./helper');
 const io = require('socket.io')(app);
-const Events = require('./events');
 
 app.listen(config.socket.port);
 
-let GRABBING = false;
-let SOURCE_URL = '';
+let GRABBING = false; // Whether or not already grabbing.
+let SOURCE_URL = ''; // URL fo the source tab.
 
 io.on('connection', (socket) => {
-
-  // SocketManager.addSocket(socket);
-
   socket.on('disconnect', () => {
     SocketManager.removeSocket(socket);
   });
@@ -84,6 +84,7 @@ io.on('connection', (socket) => {
     console.log('Got a grab event.');
 
     if(SocketManager.getCameraSocket() && !GRABBING) {
+      // Open QR codes and ask the camera app to parse.
       helper.openQRTabInAll(SocketManager.getSockets());
       SocketManager.getCameraSocket().emit(Events.CAMERA.CAPTURE, {});
       GRABBING = true;
@@ -94,6 +95,7 @@ io.on('connection', (socket) => {
     console.log('Got a ungrab event.');
 
     if (SocketManager.getCameraSocket() && GRABBING) {
+      // Open QR codes and ask the camera app to parse.
       helper.openQRTabInAll(SocketManager.getSockets());
       SocketManager.getCameraSocket().emit(Events.CAMERA.CAPTURE, {});
       GRABBING = false;
@@ -125,10 +127,12 @@ io.on('connection', (socket) => {
 
       SocketManager.setDestinationSocket(socket);
 
-      socket.emit(Events.CHROME_EXTENSION.OPEN_URL, { url: SOURCE_URL });
+      setTimeout(() => {
+        socket.emit(Events.CHROME_EXTENSION.OPEN_URL, { url: SOURCE_URL });
 
-      // Set source URL to empty to indicate new session.
-      SOURCE_URL = '';
+        // Set source URL to empty to indicate new session.
+        SOURCE_URL = '';
+      }, 500);
     }
   })
 
