@@ -1,0 +1,8 @@
+{
+  "short_name": "LeapDrop v2",
+  "name": "LeapDrop v2 Camera App",
+  "start_url": "index.html",
+  "background_color": "black",
+  "theme_color": "black",
+  "display": "fullscreen"
+}
