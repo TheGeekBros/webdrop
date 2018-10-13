@@ -31,7 +31,6 @@ const setSocketHandlers = () => {
 		chrome.tabs.getSelected(null, tab => {
 			ACTIVE_TAB = tab;
 		
-
 			if (!OPENED) {
 				chrome.tabs.create({
 					url,

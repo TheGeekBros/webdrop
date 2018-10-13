@@ -1,10 +1,11 @@
 const SocketManager = (() => {
     const sockets = {};
-    let cameraSocket = undefined;
-    let leapControllerSocket = undefined;
+    let cameraSocket;
+    let leapControllerSocket;
     let _ID = 1;
-    let sourceSocket = undefined;
-    let destinationSocket = undefined;
+    let sourceSocket;
+    let destinationSocket;
+
     return {
       getSockets: () => sockets,
   
