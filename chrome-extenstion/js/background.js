@@ -10,7 +10,12 @@ const socketConfig = config.socket;
 const socket = io(`${socketConfig.protocol}${socketConfig.hostname}:${socketConfig.port}`);
 
 const Events = {
-	CLIENT: 'client'
+	CLIENT: 'client',
+	CLOSE_QR_TAB: 'close_qr_tab',
+	GET_URL: 'get_url',
+	GOT_URL: 'got_url',
+	OPEN_QR_TAB: 'open_qr_tab',
+	OPEN_URL: 'open_url',
 }
 
 let OPENED = false;

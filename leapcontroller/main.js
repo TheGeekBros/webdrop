@@ -14,7 +14,9 @@ const Events = {
 }
 
 const setListeners = () => {
-  start.addEventListener('click', function (E) {
+  start.addEventListener('click', function (e) {
+    socket.emit(Events.LEAPCONTROLLER);
+
     Leap.loop({
       background: true
     }, {
@@ -42,8 +44,6 @@ const setListeners = () => {
 }
 
 const initApp = () => {
-  socket.emit(Events.LEAPCONTROLLER);
-  
   setListeners();
 }
 
