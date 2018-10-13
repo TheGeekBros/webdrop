@@ -1,27 +1,19 @@
+const config = require('./config');
+const socketConfig = config.socket;
+const Events = require('./events');
+
 module.exports = {
-  openQRTab: (socket, IP, PORT) => {
-    let id = socket.id;
-    id = id.replace('/#', '');
+  openQRTab: (id, socket) => {
+    const url = `${socketConfig.protocol}${socketConfig.hostname}:${socketConfig.port}/qr/${id}`;
 
-    const url = `http://${IP}:${PORT}/qr/${id}`;
-
-    socket.emit('openTab', { url });
+    socket.emit(Events.CHROME_EXTENSION.OPEN_QR_TAB, {
+      url
+    });
   },
-  openQRTabInAll: (connections, IP, PORT) => {
-    // for (let i = 0; i < connections.length; i++) {
-    //   this.openQRTab(connections[i], IP, PORT);
-    // }
+
+  openQRTabInAll: connections => {
     for(let key in connections) {
-      this.openQRTab(connections[key], IP, PORT);
+      this.openQRTab(key, connections[key]);
     }
   },
-
-  // findSocket: (connections, id) => {
-  //   for (let i = 0; i < connections.length; i++) {
-  //     let socket = connections[i];
-  //     if (socket.id === id) return socket;
-  //   }
-
-  //   return null;
-  // }
 }
