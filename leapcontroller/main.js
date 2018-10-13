@@ -3,7 +3,7 @@ const progress = document.querySelector('#progress');
 const start = document.querySelector('#start');
 
 const socketConfig = window.config.socket;
-const socket = io(`${socketConfig.procotol}${socketConfig.hostname}:${socketConfig.port}`);
+const socket = io(`${socketConfig.protocol}${socketConfig.hostname}:${socketConfig.port}`);
 
 let GRABBING = false;
 
