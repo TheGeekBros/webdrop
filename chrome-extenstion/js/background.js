@@ -30,44 +30,46 @@ const setSocketHandlers = () => {
 
 		chrome.tabs.getSelected(null, tab => {
 			ACTIVE_TAB = tab;
-		});
+		
 
-		if (!OPENED) {
-			chrome.tabs.create({
-				url,
-				active: true
-			}, tab => {
-				QR_TAB = tab;
-				OPENED = true;
-				
-				const {
-					id
-				} = QR_TAB;
-
-				chrome.tabs.onRemoved.addListener((id, removeInfo) => {
-					OPENED = false;
-
-					if (removeInfo.isWindowClosing) {
-						return;
-					}
-
-					chrome.tabs.update(ACTIVE_TAB, {
-						active: true
-					}, () => {});
+			if (!OPENED) {
+				chrome.tabs.create({
+					url,
+					active: true
+				}, tab => {
+					QR_TAB = tab;
+					OPENED = true;
+					
+					chrome.tabs.onRemoved.addListener((id, removeInfo) => {
+						if (id === QR_TAB.id) {
+							OPENED = false;
+						}
+					});;
 				});
-			});
-		} 
+			}
+
+		});		
 	});
 
 	socket.on(Events.CLOSE_QR_TAB, () => {
 		const {
 			id
 		} = QR_TAB;
+		
+		try {
+			chrome.tabs.remove(id, x => {
+				OPENED = false;
 
-		chrome.tabs.remove(id, () => {});
+				if (ACTIVE_TAB.id > 0) {
+					chrome.tabs.update(ACTIVE_TAB.id, {
+						active: true
+					}, () => {});
+				}
+			});
+		} catch (err) {}
 	});
 
-	socket.on(Events.OPEN_URL, () => {
+	socket.on(Events.OPEN_URL, data => {
 		const {
 			url
 		} = data;
