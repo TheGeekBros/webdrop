@@ -6,9 +6,7 @@ const SocketManager = (() => {
     let sourceSocket = undefined;
     let destinationSocket = undefined;
     return {
-      getSockets: () => ({
-        sockets
-      }),
+      getSockets: () => sockets,
   
       addSocket: socket => {
         sockets[++_ID] = socket;

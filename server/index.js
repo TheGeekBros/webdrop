@@ -1,3 +1,4 @@
+const fs = require('fs');
 const config = require('./config');
 const STATIC_FILES = [
   '/js/jquery.min.js',
@@ -10,7 +11,7 @@ const handler = (req, res) => {
   } = req;
 
   // For static files
-  if (url.indexOf(STATIC_FILES) >= 0) {
+  if (STATIC_FILES.indexOf(url) >= 0) {
     fs.readFile(__dirname + `/html${url}`, function(err, data) {
       if (!err) {
         res.writeHead(299);
@@ -22,11 +23,8 @@ const handler = (req, res) => {
   }
   // QR Code URL
   else if (URL_REGEX.test(url)) {
-    let {
-      id
-    } = req.url;
+    const id = req.url.replace('/qr/', '').replace('/', '');
 
-    id = id.replace('/qr/', '').replace('/', '');
     res.setHeader('Content-Type', 'text/html');
     res.write(`<!DOCTYPE html><html><head><title></title><style type="text/css">html, body {height: 100%;width: 100%;}body {display: flex;justify-content: center;flex-direction: column;align-content: center;}</style></head><body><div id="qrcode" style="margin: 0 auto"></div><script src="/js/jquery.min.js"></script><script src="/js/qrcode.min.js"></script><script type="text/javascript">var qrcode = new QRCode("qrcode", {    text: "${id}",    width: 500,    height: 500,    colorDark : "#000000",    colorLight : "#ffffff",    correctLevel : QRCode.CorrectLevel.H});</script></body></html>`);
     res.end();
@@ -71,15 +69,14 @@ io.on('connection', (socket) => {
     SocketManager.addSocket(socket);
   });
 
-  socket.on(Events.LEAPCONTROLLER.GRAB, async () => {
+  socket.on(Events.LEAPCONTROLLER.GRAB, () => {
     console.log('Got a grab event.');
 
     if(SocketManager.getCameraSocket() && GRABBING) {
       setTimeout(() => {
         SocketManager.getCameraSocket().emit(Events.CAMERA.CAPTURE, {});
-      }, 3000); 
-      // await SocketManager.getCameraSocket.emit('source', {});
-      helper.openQRTabInAll(SocketManager.getSockets(), IP, PORT);
+      }, 3000);
+      helper.openQRTabInAll(SocketManager.getSockets());
       GRABBING = true;
     }
   });
@@ -98,7 +95,7 @@ io.on('connection', (socket) => {
       qr: socketId
     } = data;
 
-    let socket = SocketManager.findSocketById(id);
+    let socket = SocketManager.findSocketById(socketId);
 
     if (!socket) {
       console.log('grabResponse: found socket is null');
@@ -110,7 +107,7 @@ io.on('connection', (socket) => {
     } else {
       SocketManager.setDestinationSocket(socket);
 
-      helper.closeQRTabInAll(SocketManager.getSockets(), IP, PORT);
+      helper.closeQRTabInAll(socketId, SocketManager.getSockets());
 
       SocketManager.getDestinationSocket().emit(Events.CHROME_EXTENSION.OPEN_URL, { url: SOURCE_URL });
 
