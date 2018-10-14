@@ -4,7 +4,7 @@ const SocketManager = (() => {
     let leapControllerSocket;
     let _ID = 1;
     let sourceSocket;
-    let destinationSocket;
+    let destinationSockets = [];
 
     return {
       getSockets: () => sockets,
@@ -37,11 +37,15 @@ const SocketManager = (() => {
 
       getSourceSocket: () => sourceSocket,
 
-      setDestinationSocket: socket => {
-        destinationSocket = socket
+      addDestinationSocket: socket => {
+        destinationSockets.push(socket);
       },
 
-      getDestinationSocket: () => destinationSocket,
+      clearDestinationSockets: () => {
+        destinationSockets = [];
+      },
+
+      getDestinationSockets: () => destinationSockets,
       
       findIdBySocket: socket => {
         for (let key in sockets) {

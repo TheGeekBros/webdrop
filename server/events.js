@@ -2,13 +2,15 @@ module.exports = {
   LEAPCONTROLLER: {
     GRAB: 'grab',
     UNGRAB: 'ungrab',
-    LEAPCONTROLLER: 'leapcontroller'
+    LEAPCONTROLLER: 'leapcontroller',
+    MULTIPLE: 'multiple',
+    END: 'end',
   },
 
   CAMERA: {
     CAMERA: 'camera',
     CAPTURE: 'capture',
-    CAPTURED: 'captured'
+    CAPTURED: 'captured',
   },
 
   CHROME_EXTENSION: {

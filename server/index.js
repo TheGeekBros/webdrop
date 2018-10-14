@@ -84,10 +84,12 @@ io.on('connection', (socket) => {
     console.log('Got a grab event.');
 
     if(SocketManager.getCameraSocket() && !GRABBING) {
+      GRABBING = true;
+      SocketManager.clearDestinationSockets();
+
       // Open QR codes and ask the camera app to parse.
       helper.openQRTabInAll(SocketManager.getSockets());
       SocketManager.getCameraSocket().emit(Events.CAMERA.CAPTURE, {});
-      GRABBING = true;
     }
   });
 
@@ -95,10 +97,41 @@ io.on('connection', (socket) => {
     console.log('Got a ungrab event.');
 
     if (SocketManager.getCameraSocket() && GRABBING) {
+      GRABBING = false;
+
       // Open QR codes and ask the camera app to parse.
       helper.openQRTabInAll(SocketManager.getSockets());
       SocketManager.getCameraSocket().emit(Events.CAMERA.CAPTURE, {});
+    }
+  });
+
+  socket.on(Events.LEAPCONTROLLER.MULTIPLE, () => {
+    // Open QR codes and ask the camera app to parse.
+    helper.openQRTabInAll(SocketManager.getSockets());
+    SocketManager.getCameraSocket().emit(Events.CAMERA.CAPTURE, {});
+  });
+
+  const open = () => setTimeout(() => {
+    const destinationSockets = SocketManager.getDestinationSockets();
+    const url = SOURCE_URL;
+
+    // Set source URL to empty to indicate new session.
+    SOURCE_URL = '';
+
+    for (key in destinationSockets) {
+      const s = destinationSockets[key]
+
+      s.emit(Events.CHROME_EXTENSION.OPEN_URL, {
+        url
+      });
+    }
+
+  }, 500);
+
+  socket.on(Events.LEAPCONTROLLER.END, () => {
+    if (SocketManager.getCameraSocket() && GRABBING) {
       GRABBING = false;
+      open();
     }
   });
 
@@ -125,14 +158,11 @@ io.on('connection', (socket) => {
     } else {
       console.log('This is the destination.');
 
-      SocketManager.setDestinationSocket(socket);
+      SocketManager.addDestinationSocket(socket);
 
-      setTimeout(() => {
-        socket.emit(Events.CHROME_EXTENSION.OPEN_URL, { url: SOURCE_URL });
-
-        // Set source URL to empty to indicate new session.
-        SOURCE_URL = '';
-      }, 500);
+      if (!GRABBING) {
+        open();
+      }
     }
   })
 
