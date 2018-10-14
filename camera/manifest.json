@@ -4,5 +4,6 @@
   "start_url": "index.html",
   "background_color": "black",
   "theme_color": "black",
-  "display": "fullscreen"
+  "display": "fullscreen",
+  "orientation": "landscape"
 }
